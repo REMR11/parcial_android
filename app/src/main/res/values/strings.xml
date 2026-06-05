@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Clínica UFG</string>
+    <string name="title_login">Acceso de Personal</string>
+    <string name="hint_username">Usuario</string>
+    <string name="hint_password">Contraseña</string>
+    <string name="btn_login">Ingresar</string>
+    <string name="title_main">Pacientes Registrados</string>
+    <string name="title_registro">Registro Clínico de Paciente</string>
+    <string name="title_confirmacion">Confirmar Registro</string>
+    <string name="title_detalle">Detalle de Paciente</string>
+    <string name="title_dashboard">Métricas Clínicas</string>
+</resources>

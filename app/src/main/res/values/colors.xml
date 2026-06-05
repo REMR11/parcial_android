@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Core Brand Colors (Medical Premium Theme) -->
+    <color name="primary">#FF0F52BA</color>
+    <color name="primary_dark">#FF0A3B85</color>
+    <color name="accent">#FF00E5FF</color>
+    
+    <!-- Neutral Colors -->
+    <color name="black">#FF1A1A1A</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="background">#F8F9FD</color>
+    <color name="card_background">#FFFFFFFF</color>
+    <color name="divider">#FFE0E0E0</color>
+    <color name="text_primary">#FF212121</color>
+    <color name="text_secondary">#FF757575</color>
+
+    <!-- Priority Soft Colors -->
+    <color name="priority_low_bg">#E8F5E9</color>
+    <color name="priority_low_text">#2E7D32</color>
+    <color name="priority_medium_bg">#FFF3E0</color>
+    <color name="priority_medium_text">#EF6C00</color>
+    <color name="priority_high_bg">#FFEBEE</color>
+    <color name="priority_high_text">#C62828</color>
+    
+    <!-- Legacy purple colors for backward compatibility if any -->
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+</resources>
