@@ -19,7 +19,6 @@ class LoginActivity : AppCompatActivity() {
             val username = binding.etUsername.text.toString().trim()
             val password = binding.etPassword.text.toString().trim()
 
-            // Validation logic
             if (username.isEmpty()) {
                 binding.tilUsername.error = "Ingrese su usuario"
                 return@setOnClickListener
@@ -34,14 +33,23 @@ class LoginActivity : AppCompatActivity() {
                 binding.tilPassword.error = null
             }
 
-            if (username == "admin" && password == "12345") {
-                // Success - Redirect to Main screen
+            // Validación de credenciales por rol según requerimientos
+            val role = when {
+                username == "admin" && password == "12345" -> "Administrador"
+                username == "medico" && password == "med2026" -> "Médico"
+                else -> null
+            }
+
+            if (role != null) {
+                // Éxito: Mostrar mensaje de bienvenida con el rol
+                Toast.makeText(this, "Bienvenido $role", Toast.LENGTH_SHORT).show()
+                
                 val intent = Intent(this, MainActivity::class.java)
                 startActivity(intent)
-                finish() // Prevent returning to login screen on back press
+                finish()
             } else {
-                // Failure
-                Toast.makeText(this, "Credenciales incorrectas", Toast.LENGTH_SHORT).show()
+                // Fallo: Mensaje de error estricto según requerimiento
+                Toast.makeText(this, "Acceso denegado", Toast.LENGTH_SHORT).show()
                 binding.tilUsername.error = "Credenciales incorrectas"
                 binding.tilPassword.error = "Credenciales incorrectas"
             }

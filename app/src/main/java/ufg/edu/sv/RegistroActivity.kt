@@ -19,16 +19,13 @@ class RegistroActivity : AppCompatActivity() {
     private lateinit var binding: ActivityRegistroBinding
     private var editingPaciente: Paciente? = null
 
-    // Register Activity Result API for Confirmation flow
     private val confirmationLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == RESULT_OK) {
-            // Confirmation saved data successfully in Room, return OK to MainActivity
             setResult(RESULT_OK)
             finish()
         } else if (result.resultCode == 99) {
-            // Discard everything, return to MainActivity
             finish()
         }
     }
@@ -38,55 +35,56 @@ class RegistroActivity : AppCompatActivity() {
         binding = ActivityRegistroBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Setup Toolbar
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         binding.toolbar.setNavigationOnClickListener { onBackPressed() }
 
-        // Setup Priority Spinner
+        // Ajustado a los requerimientos: Baja, Media, Alta
         val priorities = arrayOf("Baja", "Media", "Alta")
         val spinnerAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, priorities)
         binding.spinnerPrioridad.adapter = spinnerAdapter
 
-        // Check if editing existing patient
+        val bloodTypes = arrayOf("A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-")
+        val bloodAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, bloodTypes)
+        binding.spinnerTipoSangre.adapter = bloodAdapter
+
         editingPaciente = intent.getSerializableExtra("paciente") as? Paciente
         if (editingPaciente != null) {
             binding.toolbar.title = "Editar Paciente"
             populateFields(editingPaciente!!)
         }
 
-        // Add auto-formatting text watchers for DUI and Phone to enhance user experience
         setupFormatters()
 
-        // Submit Button Click
         binding.btnSubmit.setOnClickListener {
             if (validateForm()) {
                 val currentTimestamp = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date())
                 
-                // Pack details into a Paciente instance
                 val patientData = Paciente(
-                    id = editingPaciente?.id ?: 0, // Keep existing ID if editing
+                    id = editingPaciente?.id ?: 0,
                     nombre = binding.etNombre.text.toString().trim(),
                     edad = binding.etEdad.text.toString().trim().toInt(),
                     dui = binding.etDui.text.toString().trim(),
                     telefono = binding.etTelefono.text.toString().trim(),
                     direccion = binding.etDireccion.text.toString().trim(),
+                    correo = binding.etCorreo.text.toString().trim(),
+                    tipoSangre = binding.spinnerTipoSangre.selectedItem.toString(),
+                    peso = binding.etPeso.text.toString().trim().toDouble(),
+                    estatura = binding.etEstatura.text.toString().trim().toDouble(),
                     sintomas = binding.etSintomas.text.toString().trim(),
                     diagnostico = binding.etDiagnostico.text.toString().trim(),
                     prioridad = binding.spinnerPrioridad.selectedItem.toString(),
                     hospitalizacion = binding.cbHospitalizacion.isChecked,
                     examenes = binding.cbExamenes.isChecked,
+                    enfermedadCronica = binding.cbCronico.isChecked,
                     fechaHoraRegistro = editingPaciente?.fechaHoraRegistro ?: currentTimestamp
                 )
 
-                // Launch ConfirmationActivity
                 val intent = Intent(this, ConfirmacionActivity::class.java).apply {
                     putExtra("paciente", patientData)
                     putExtra("isEditing", editingPaciente != null)
                 }
                 confirmationLauncher.launch(intent)
-            } else {
-                Toast.makeText(this, "Por favor complete los campos obligatorios marcados con *", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -97,6 +95,9 @@ class RegistroActivity : AppCompatActivity() {
         binding.etDui.setText(p.dui)
         binding.etTelefono.setText(p.telefono)
         binding.etDireccion.setText(p.direccion)
+        binding.etCorreo.setText(p.correo)
+        binding.etPeso.setText(p.peso.toString())
+        binding.etEstatura.setText(p.estatura.toString())
         binding.etSintomas.setText(p.sintomas)
         binding.etDiagnostico.setText(p.diagnostico)
         
@@ -107,38 +108,62 @@ class RegistroActivity : AppCompatActivity() {
             else -> 0
         }
         binding.spinnerPrioridad.setSelection(priorityIndex)
+
+        val bloodTypes = arrayOf("A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-")
+        val bloodIndex = bloodTypes.indexOf(p.tipoSangre).takeIf { it >= 0 } ?: 0
+        binding.spinnerTipoSangre.setSelection(bloodIndex)
+
         binding.cbHospitalizacion.isChecked = p.hospitalizacion
         binding.cbExamenes.isChecked = p.examenes
+        binding.cbCronico.isChecked = p.enfermedadCronica
     }
 
     private fun setupFormatters() {
-        // DUI Auto-formatting (XXXXXXXX-X)
         binding.etDui.addTextChangedListener(object : TextWatcher {
-            var isDeleting = false
+            private var isRunning = false
+            private var isDeleting = false
+
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
                 isDeleting = count > after
             }
+
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
             override fun afterTextChanged(s: Editable?) {
+                if (isRunning) return
+                isRunning = true
+
                 val text = s.toString()
                 if (!isDeleting && text.length == 8) {
-                    binding.etDui.append("-")
+                    s?.append("-")
+                } else if (isDeleting && text.length == 9 && text.endsWith("-")) {
+                    // Si se borra el guion, dejar que se borre
                 }
+
+                isRunning = false
             }
         })
 
-        // Phone Auto-formatting (XXXX-XXXX)
         binding.etTelefono.addTextChangedListener(object : TextWatcher {
-            var isDeleting = false
+            private var isRunning = false
+            private var isDeleting = false
+
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
                 isDeleting = count > after
             }
+
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
             override fun afterTextChanged(s: Editable?) {
+                if (isRunning) return
+                isRunning = true
+
                 val text = s.toString()
                 if (!isDeleting && text.length == 4) {
-                    binding.etTelefono.append("-")
+                    s?.append("-")
                 }
+
+                isRunning = false
             }
         })
     }
@@ -146,7 +171,6 @@ class RegistroActivity : AppCompatActivity() {
     private fun validateForm(): Boolean {
         var isValid = true
 
-        // Nombre Validation
         val nombre = binding.etNombre.text.toString().trim()
         if (nombre.isEmpty()) {
             binding.tilNombre.error = "El nombre es obligatorio"
@@ -155,7 +179,6 @@ class RegistroActivity : AppCompatActivity() {
             binding.tilNombre.error = null
         }
 
-        // Edad Validation
         val edadText = binding.etEdad.text.toString().trim()
         if (edadText.isEmpty()) {
             binding.tilEdad.error = "Requerido"
@@ -170,7 +193,6 @@ class RegistroActivity : AppCompatActivity() {
             }
         }
 
-        // DUI Validation (El Salvador DUI format: 8 digits + dash + 1 digit)
         val dui = binding.etDui.text.toString().trim()
         val duiRegex = Regex("^\\d{8}-\\d{1}$")
         if (dui.isEmpty()) {
@@ -183,7 +205,6 @@ class RegistroActivity : AppCompatActivity() {
             binding.tilDui.error = null
         }
 
-        // Telefono Validation (El Salvador phone format: 4 digits + dash + 4 digits)
         val telefono = binding.etTelefono.text.toString().trim()
         val phoneRegex = Regex("^\\d{4}-\\d{4}$")
         if (telefono.isEmpty()) {
@@ -196,7 +217,6 @@ class RegistroActivity : AppCompatActivity() {
             binding.tilTelefono.error = null
         }
 
-        // Direccion Validation
         val direccion = binding.etDireccion.text.toString().trim()
         if (direccion.isEmpty()) {
             binding.tilDireccion.error = "La dirección es obligatoria"
@@ -205,7 +225,45 @@ class RegistroActivity : AppCompatActivity() {
             binding.tilDireccion.error = null
         }
 
-        // Sintomas Validation
+        val correo = binding.etCorreo.text.toString().trim()
+        if (correo.isEmpty()) {
+            binding.tilCorreo.error = "El correo es obligatorio"
+            isValid = false
+        } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(correo).matches()) {
+            binding.tilCorreo.error = "Correo inválido"
+            isValid = false
+        } else {
+            binding.tilCorreo.error = null
+        }
+
+        val pesoText = binding.etPeso.text.toString().trim()
+        if (pesoText.isEmpty()) {
+            binding.tilPeso.error = "Requerido"
+            isValid = false
+        } else {
+            val peso = pesoText.toDoubleOrNull()
+            if (peso == null || peso <= 0) {
+                binding.tilPeso.error = "Peso > 0"
+                isValid = false
+            } else {
+                binding.tilPeso.error = null
+            }
+        }
+
+        val estaturaText = binding.etEstatura.text.toString().trim()
+        if (estaturaText.isEmpty()) {
+            binding.tilEstatura.error = "Requerido"
+            isValid = false
+        } else {
+            val estatura = estaturaText.toDoubleOrNull()
+            if (estatura == null || estatura <= 0) {
+                binding.tilEstatura.error = "Estatura > 0"
+                isValid = false
+            } else {
+                binding.tilEstatura.error = null
+            }
+        }
+
         val sintomas = binding.etSintomas.text.toString().trim()
         if (sintomas.isEmpty()) {
             binding.tilSintomas.error = "Los síntomas son obligatorios"
@@ -214,13 +272,16 @@ class RegistroActivity : AppCompatActivity() {
             binding.tilSintomas.error = null
         }
 
-        // Diagnostico Validation
         val diagnostico = binding.etDiagnostico.text.toString().trim()
         if (diagnostico.isEmpty()) {
             binding.tilDiagnostico.error = "El diagnóstico es obligatorio"
             isValid = false
         } else {
             binding.tilDiagnostico.error = null
+        }
+
+        if (!isValid) {
+            Toast.makeText(this, "Por favor complete los campos obligatorios marcados con *", Toast.LENGTH_SHORT).show()
         }
 
         return isValid

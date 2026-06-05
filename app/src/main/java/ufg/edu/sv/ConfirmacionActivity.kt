@@ -85,19 +85,25 @@ class ConfirmacionActivity : AppCompatActivity() {
         binding.tvConfirmEdad.text = "Edad: ${p.edad} años"
         binding.tvConfirmDui.text = "DUI: ${p.dui}"
         binding.tvConfirmTelefono.text = "Teléfono: ${p.telefono}"
+        binding.tvConfirmCorreo.text = "Correo: ${p.correo}"
         binding.tvConfirmDireccion.text = "Dirección: ${p.direccion}"
+        binding.tvConfirmTipoSangre.text = "Tipo de Sangre: ${p.tipoSangre}"
+        binding.tvConfirmPeso.text = "Peso: ${p.peso} kg"
+        binding.tvConfirmEstatura.text = "Estatura: ${p.estatura} m"
         binding.tvConfirmSintomas.text = "Síntomas: ${p.sintomas}"
         binding.tvConfirmDiagnostico.text = "Diagnóstico: ${p.diagnostico}"
         binding.tvConfirmPrioridad.text = "Prioridad: ${p.prioridad.uppercase()}"
         binding.tvConfirmHospitalizacion.text = "Hospitalización: ${if (p.hospitalizacion) "Sí" else "No"}"
         binding.tvConfirmExamenes.text = "Exámenes de Laboratorio: ${if (p.examenes) "Sí" else "No"}"
+        binding.tvConfirmCronico.text = "Enf. Crónica: ${if (p.enfermedadCronica) "Sí" else "No"}"
     }
 
     private fun generateClinicalSummary(p: Paciente) {
         val hospText = if (p.hospitalizacion) "requiere hospitalización inmediata" else "no requiere hospitalización"
         val examText = if (p.examenes) "requiere exámenes de laboratorio" else "no requiere exámenes adicionales"
+        val cronicoText = if (p.enfermedadCronica) " y presenta antecedentes de enfermedades crónicas." else "."
         
-        val summary = "Paciente ${p.nombre}, de ${p.edad} años. Registra prioridad ${p.prioridad.lowercase()} con síntomas de (${p.sintomas}) y diagnóstico preliminar de (${p.diagnostico}). Se determina que el paciente $hospText y $examText."
+        val summary = "Paciente ${p.nombre}, de ${p.edad} años. Registra prioridad ${p.prioridad.lowercase()} con síntomas de (${p.sintomas}) y diagnóstico preliminar de (${p.diagnostico}). Se determina que el paciente $hospText, $examText$cronicoText"
         
         binding.tvResumenClinico.text = summary
     }

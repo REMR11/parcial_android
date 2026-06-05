@@ -61,12 +61,12 @@
 
         </RelativeLayout>
 
-        <!-- Subtitles: Edad and DUI -->
+        <!-- Subtitles: Edad, DUI and Tipo de Sangre -->
         <TextView
             android:id="@+id/tvPacienteInfo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Edad: 35 años  •  DUI: 01234567-8"
+            android:text="Edad: 35  •  DUI: 01234567-8  •  Sangre: O+"
             android:textColor="@color/text_secondary"
             android:textSize="13sp"
             android:layout_marginBottom="4dp" />
